@@ -46,126 +46,136 @@ fun ScanDocumentScreen(
     val imageProcessedStatus by viewModel.imageProcessedStatus.observeAsState()
 
     Scaffold { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color(0xFFF4F6F9))
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+                .background(color = Color(0xFFF4F6F9)),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Button(
-                    onClick = onPickFromGallery,
+            item {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Pick from Gallery",
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Pick from Gallery",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                    Button(
+                        onClick = onPickFromGallery,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Pick from Gallery",
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Pick from Gallery",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
 
-                Button(
-                    onClick = onClickWithCamera,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03DAC5))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Click with Camera",
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Click with Camera",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                    )
+                    Button(
+                        onClick = onClickWithCamera,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03DAC5))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Click with Camera",
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Click with Camera",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
                 }
             }
 
             if (isProcessing) {
-                CircularProgressIndicator(
-                    modifier = Modifier.padding(16.dp),
-                    color = Color(0xFF6200EE)
-                )
-            } else {
-                bitmap?.let {
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Image(
-                        bitmap = it.asImageBitmap(),
-                        contentDescription = "Captured Image",
+                item {
+                    CircularProgressIndicator(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(220.dp)
-                            .padding(16.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color.Gray)
-                            .clickable {
-                                showFullImageDialog = true
-                            }
+                            .padding(16.dp),
+                        color = Color(0xFF6200EE)
                     )
                 }
+            } else {
+                bitmap?.let {
+                    item {
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Image(
+                            bitmap = it.asImageBitmap(),
+                            contentDescription = "Captured Image",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(220.dp)
+                                .padding(16.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color.Gray)
+                                .clickable {
+                                    showFullImageDialog = true
+                                }
+                        )
+                    }
+                }
                 imageProcessedStatus?.let { status ->
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = status,
-                        color = if (status.contains("Failed")) Color.Red else Color.Green,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = status,
+                            color = if (status.contains("Failed")) Color.Red else Color.Green,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
             if (showFullImageDialog && bitmap != null) {
-                FullScreenImageDialog(
-                    bitmap = bitmap!!,
-                    onDismiss = { showFullImageDialog = false })
+                item {
+                    FullScreenImageDialog(
+                        bitmap = bitmap!!,
+                        onDismiss = { showFullImageDialog = false })
+                }
             }
+
             if (costs.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(32.dp))
-                Text(
-                    text = "Detected Costs:",
-                    color = Color(0xFF333333),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.Start)
-                )
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp)
-                ) {
-                    items(costs) { cost ->
-                        Text(
-                            text = cost,
-                            color = Color(0xFF333333),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
+                item {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Text(
+                        text = "Detected Costs:",
+                        color = Color(0xFF333333),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                    )
+                }
+                items(costs) { cost ->
+                    Text(
+                        text = cost,
+                        color = Color(0xFF333333),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp, horizontal = 16.dp)
+                    )
                 }
             }
         }
